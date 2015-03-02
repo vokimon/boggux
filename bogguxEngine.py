@@ -158,11 +158,6 @@ def goodPath(path) :
 		return False
 	return True
 
-from PyQt4 import QtGui
-class BogguxDiceBoard(QtGui.QWidget) :
-	def __init__(self, parent=None) :
-		super(BogguxDiceBoard, self).__init__(parent)
-
 
 if __name__ == '__main__':
 	import sys
@@ -170,9 +165,5 @@ if __name__ == '__main__':
 		sys.argv.remove('--test')
 		unittest.main()
 
-	app = QtGui.QApplication(sys.argv)
-	w = BogguxDiceBoard()
-	w.show()
-	app.exec_()
 
 
