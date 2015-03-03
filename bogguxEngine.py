@@ -4,6 +4,30 @@ import unittest
 
 import random
 
+spanishDiceSet="""
+HERINS
+DAMEPC
+ESFIHE
+UOETNK
+
+ZVNDAE
+VITEGN
+TAOAEI
+RCALES
+
+SIRMOA
+GENLUY
+JAMQOB
+WILRUE
+
+SEONTD
+XORFIA
+BATRIL
+LUSPET
+""".strip().split()
+print (spanishDiceSet)
+
+
 class DiceRoller() :
 	def __init__(self, diceSet) :
 		self.diceSet = diceSet
