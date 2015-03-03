@@ -1,6 +1,5 @@
 import QtQuick 2.3
 import QtQuick.Layouts 1.0
-import QtQuick.Window 2.1
 
 Item {
 	id: diceBox
@@ -14,7 +13,9 @@ Item {
 	property color diceColor: '#eea'
 	property int diceGap: boxSize/80
 	property int diceSize: (boxSize-diceGap*3)/4
-	property var game: 'ABDCEFGHIJKLLMNNÑOPQRSSTUVWXYZAAAEEEIIIOOOUUURRSSDDLL'
+//	property var game: 'ABDCEFGHIJKLLMNNÑOPQRSSTUVWXYZAAAEEEIIIOOOUUURRRSSSSSDDLL'
+	property var game: 'HERINSDAMEPCESFIHEUOETNKZVNDAEVITEGNTAOAEIRCALESSIRMOAGENLUYJAMQOBWILRUESEONTDXORFIABATRILLUSPET'
+
 	property var path: []
 
 	signal wordCompleted(string word)
