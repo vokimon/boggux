@@ -25,7 +25,6 @@ XORFIA
 BATRIL
 LUSPET
 """.strip().split()
-print (spanishDiceSet)
 
 
 class DiceRoller() :
@@ -67,7 +66,7 @@ class Boggux_Test(unittest.TestCase) :
 		'ABCD'
 		'FGHI'
 		'JKLM'
-		'NÑOP'
+		'NOPQ'
 		)
 	def setUp(self) :
 		self.gameSetup = None
@@ -122,22 +121,19 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertFalse(contiguous(3,4))
 
 	def test_contiguousDices_functional_inSide(self) :
-		self.assertEqual([
-			0,0,0,0,
-			0,1,1,1,
-			0,1,0,1,
-			0,1,1,1,
-			],
-			[ 1 if contiguous(10,i) else 0  for i in range(16) ])
-
+		self.assertEqual(
+			'....'
+			'.XXX'
+			'.X.X'
+			'.XXX'
+			, ''.join([ 'X' if contiguous(10,i) else '.'  for i in range(16) ]) )
 	def test_contiguousDices_functional_atEdge(self) :
-		self.assertEqual([
-			0,0,1,1,
-			0,0,1,0,
-			0,0,1,1,
-			0,0,0,0,
-			],
-			[ 1 if contiguous(7,i) else 0  for i in range(16) ])
+		self.assertEqual(
+			'..XX'
+			'..X.'
+			'..XX'
+			'....'
+			, ''.join([ 'X' if contiguous(7,i) else '.' for i in range(16) ]))
 
 
 	def test_goodPath_whenNotContinuous(self) :
