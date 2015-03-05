@@ -135,6 +135,13 @@ class Boggux_Test(unittest.TestCase) :
 			'....'
 			, ''.join([ 'X' if contiguous(7,i) else '.' for i in range(16) ]))
 
+	def test_formatDiceBoard(self) :
+		self.assertMultiLineEqual(
+			'ABCD\n'
+			'EFGH\n'
+			'IJKL\n'
+			'MNOP',
+			formatDiceBoard('ABCDEFGHIJKLMNOP'))
 
 	def test_goodPath_whenNotContinuous(self) :
 		self.assertFalse(goodPath([1,2,4]))
@@ -147,6 +154,49 @@ class Boggux_Test(unittest.TestCase) :
 			wordPath(self.game, [1,2,3,6]),
 			"BCDH")
 
+	def test_diceReducer_withWordMatching(self):
+		d = DiceReducer("abcde")
+		self.assertTrue(d.matches("cacadebaca"))
+
+	def test_diceReducer_withWordMatching(self):
+		d = DiceReducer("abcde")
+		self.assertFalse(d.matches("cacadevaca"))
+
+	def test_diceReducer_withoutEquivalencesAccents(self):
+		d = DiceReducer("abcde")
+		self.assertFalse(d.matches("cacádèbàçé"))
+
+	def test_diceReducer_withEquivalences(self):
+		equivalences={
+			'e': 'éè',
+			'a': 'àá',
+			'c': 'ç'
+			}
+		d = DiceReducer("abcde", equivalences)
+		self.assertTrue(d.matches("cacádèbàçé"))
+
+	def test_reduceWordList(self):
+		wordlist = 'casa lata ceta placa jota rota'.split()
+		diceList = 'csalpjtozxwy'
+		self.assertEqual(
+			'casa jota lata placa'.split(),
+			list(sorted(reduceWordList(diceList, wordlist))))
+
+class DiceReducer() :
+	def __init__(self, diceletters, equivalences={}):
+		diceletters+= ''.join([
+			equivalences
+			for letter, equivalences in equivalences.items()
+			if letter in diceletters])
+		import re
+		self.rege = re.compile('['+''.join(set(diceletters))+']*')
+
+	def matches(self, word):
+		return self.rege.fullmatch(word) is not None
+
+def reduceWordList(diceLetters, wordlist) :
+	prefilter = DiceReducer(diceLetters)
+	return set([ word for word in wordlist if prefilter.matches(word) ])
 
 
 def wordPath(game, path) :
@@ -178,6 +228,11 @@ def goodPath(path) :
 		return False
 	return True
 
+def formatDiceBoard(letters) :
+	return '\n'.join(
+		letters[n:n+4]
+		for n in range(0,16,4)
+		)
 
 if __name__ == '__main__':
 	import sys
@@ -185,5 +240,29 @@ if __name__ == '__main__':
 		sys.argv.remove('--test')
 		unittest.main()
 
+	print('Rolling dices...')
+	roller = DiceRoller(spanishDiceSet)
+	game = roller.roll()
+	print(formatDiceBoard(game))
+	print('Prefiltering words...')
+	reducer = DiceReducer(game.lower())
+	words = set(
+		word for word in (
+			w.strip() for w in open('wordlist.es.dict'))
+		if reducer.matches(word))
+	print('Testing for a word...')
+	for word in [
+		'case',
+		'date',
+		'sar',
+		'ret',
+		'rets',
+		'ree',
+		'rees',
+		]:
+		print(word, (word in words), len(words))
+	
+
+	sys.exit(-1)
 
 
