@@ -178,10 +178,24 @@ class Boggux_Test(unittest.TestCase) :
 		game = Game('AEAA''AAAA''AAAA''AAAE')
 		self.assertEqual(game.findLetter('e'), [1,15])
 
+	def test_unaccent_withNormal(self):
+		game = Game('AAAA''AAAA''AAAA''AAAA', equivalences={'e':'é'})
+		self.assertEqual(game.unaccent('e'),'e')
+
+	def test_unaccent_withEquivalent(self):
+		game = Game('AAAA''AAAA''AAAA''AAAA', equivalences={'e':'é'})
+		self.assertEqual(game.unaccent('é'),'e')
+
+	@unittest.skip("target test")
+	def test_findLetter_withAccent_singleEquivalent(self):
+		game = Game('AEAA''AAAA''AAAA''AAAE', equivalences={'e':'é'})
+		self.assertEqual(game.findLetter('é'), [1,15])
+
 
 class Game() :
 	def __init__(self, dices, equivalences={}):
 		self.dices = dices.lower()
+		self.equivalents = equivalences
 
 	def findLetter(self,letter):
 		return [i for i,c in enumerate(self.dices) if c==letter]
@@ -193,6 +207,11 @@ class Game() :
 			for n in range(0,16,4)
 			)
 
+	def unaccent(self, letter):
+		for unaccent, accented in self.equivalents.items():
+			if letter in accented:
+				return unaccent
+		return letter
 
 class DiceReducer() :
 	"""
