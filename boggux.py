@@ -8,5 +8,6 @@ if __name__ == '__main__':
 	app = QtWidgets.QApplication(sys.argv)
 	engine = QtQml.QQmlApplicationEngine('boggux.qml')
 	w = engine.rootObjects()[0]
+	w.shuffle()
 	w.show()
 	sys.exit(app.exec_())

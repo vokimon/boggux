@@ -199,6 +199,7 @@ def reduceWordList(diceLetters, wordlist) :
 	return set([ word for word in wordlist if prefilter.matches(word) ])
 
 
+
 def wordPath(game, path) :
 	return ''.join(( game[i] for i in path))
 
@@ -243,6 +244,7 @@ if __name__ == '__main__':
 	print('Rolling dices...')
 	roller = DiceRoller(spanishDiceSet)
 	game = roller.roll()
+	game = "BGJZIATEEONUSNSR"
 	print(formatDiceBoard(game))
 	print('Prefiltering words...')
 	reducer = DiceReducer(game.lower())
@@ -250,6 +252,7 @@ if __name__ == '__main__':
 		word for word in (
 			w.strip() for w in open('wordlist.es.dict'))
 		if reducer.matches(word))
+	print('Reduced to {} words.'.format(len(words)))
 	print('Testing for a word...')
 	for word in [
 		'case',
@@ -260,9 +263,55 @@ if __name__ == '__main__':
 		'ree',
 		'rees',
 		]:
-		print(word, (word in words), len(words))
-	
+		print(word, (word in words))
 
-	sys.exit(-1)
+	def occurrences(item, alist) :
+		i = 0
+		while True:
+			try:
+				i = alist.index(item,i)
+			except ValueError:
+				raise StopIteration
+			yield i
+			i+=1
+				
+
+	print([i for i in occurrences('E',game)])
+
+	def findTrail(dices, trail, remaining) :
+		if not remaining: return trail
+		previous = trail[-1]
+		for i in -3,-4,-5,-1,+1,+3,+4,+5 :
+			step = previous+i
+			if step<0: continue
+			if step>=16: continue
+			if step in trail: continue
+			if not contiguous(previous, step): continue
+			if remaining[0]!=dices[step]: continue
+			found = findTrail(dices, trail+[step],remaining[1:])
+			if found: return found
+
+	def wordInGame(game, word) :
+		for i in occurrences(word[0],game.lower()) :
+			trail = findTrail(game.lower(), [i],word[1:])
+			if trail: return trail
+
+	availableWords = [
+		word for word in (words)
+		if len(word)>2
+		and wordInGame(game, word)
+		]
+	print(availableWords)
+	print(len(availableWords))
+
+
+
+
+
+
+
+
+
+
 
 
