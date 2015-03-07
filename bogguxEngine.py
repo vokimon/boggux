@@ -178,11 +178,29 @@ class Boggux_Test(unittest.TestCase) :
 	def test_reduceWordList(self):
 		wordlist = 'casa lata ceta placa jota rota'.split()
 		diceList = 'csalpjtozxwy'
+		reducer=DiceReducer(diceList)
 		self.assertEqual(
 			'casa jota lata placa'.split(),
-			list(sorted(reduceWordList(diceList, wordlist))))
+			list(sorted(reducer.reduceWordList(wordlist))))
+
+	def test_reduceWordList_withAccents(self):
+		wordlist = 'casà latá ceta placa jota rota'.split()
+		diceList = 'csalpjtozxwy'
+		reducer = DiceReducer(diceList, equivalences={'a':'àá'})
+		self.assertEqual(
+			'casà jota latá placa'.split(),
+			list(sorted(reducer.reduceWordList(wordlist))))
+
 
 class DiceReducer() :
+	"""
+	Discards words containing letters not included in a dice list.
+	This is not resolving the Boggle but quickly reduces the word list
+	two factors of magnitude.
+
+	A dicctionary with letter equivalences can be provided to consider,
+	for example, a set of tilded caracters equivalent to the untilded one.
+	"""
 	def __init__(self, diceletters, equivalences={}):
 		diceletters+= ''.join([
 			equivalences
@@ -194,10 +212,8 @@ class DiceReducer() :
 	def matches(self, word):
 		return self.rege.fullmatch(word) is not None
 
-def reduceWordList(diceLetters, wordlist) :
-	prefilter = DiceReducer(diceLetters)
-	return set([ word for word in wordlist if prefilter.matches(word) ])
-
+	def reduceWordList(self, wordlist) :
+		return set([ word for word in wordlist if self.matches(word) ])
 
 
 def wordPath(game, path) :
