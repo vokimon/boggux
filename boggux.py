@@ -21,14 +21,21 @@ class Controller(QtCore.QObject) :
 		self.game = Game(dices)
 		self.window.setGame(dices)
 		self.validWords = self.game.solve(self.wordlist)
+		print(self.validWords)
 
 	@QtCore.pyqtSlot(str)
 	def wordCompleted(self, word):
 		message = self.validateWord(word)
 		if message:
 			return self.window.badWord(word,message)
-		self.window.wordCompleted(word)
+		points = self.wordPoints(word)
+		self.window.goodWord(word,
+			self.tr("¡1 punto!") if points==1 else
+			self.tr("¡{0} puntos!").format(points))
 
+	def wordPoints(self,word):
+		points = len(word)-2
+		return points if points>0 else 0
 
 	def validateWord(self,word):
 		print("validating",word)

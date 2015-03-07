@@ -20,6 +20,12 @@ Window {
 	{
 		lastWordMessage.error(word,message)
 	}
+	function goodWord(word, message)
+	{
+		lastWordMessage.success(word, message)
+		words.splice(0,0,word)
+		words=main.words
+	}
 
 	function totalPoints()
 	{
@@ -29,25 +35,6 @@ Window {
 	{
 		var points = word.length - 2
 		return (points < 0) ? 0 : points
-	}
-	function wordCompleted(word)
-	{
-		words.splice(0,0,word)
-		var points = wordPoints(word)
-		lastWordMessage.success(word,(
-			points == 1 ?
-			qsTr("¡%1 punto!"):
-			qsTr("¡%1 puntos!")
-				).arg(wordPoints(word)))
-		words=main.words
-	}
-	function validateWord(word)
-	{
-		if (word.length<3)
-			return qsTr("Tiene menos de 3 letras")
-		if (words.indexOf(word) != -1)
-			return qsTr("Repetida")
-		return false
 	}
 
 	title: qsTr("BoGGuX")
