@@ -4,6 +4,28 @@ import unittest
 
 import random
 
+spanishDiceSet="""
+	HERINS
+	DAMEPC
+	ESFIHE
+	UOETNK
+
+	ZVNDAE
+	VITEGN
+	TAOAEI
+	RCALES
+
+	SIRMOA
+	GENLUY
+	JAMQOB
+	WILRUE
+
+	SEONTD
+	XORFIA
+	BATRIL
+	LUSPET
+	""".strip().split()
+
 
 class DiceRoller() :
 	def __init__(self, diceSet) :
@@ -166,6 +188,14 @@ class Boggux_Test(unittest.TestCase) :
 			'casà jota latá placa'.split(),
 			list(sorted(reducer.reduceWordList(wordlist))))
 
+	def test_reduceWordList_noShortWords(self):
+		wordlist = 'ca la ceta placa jota rota'.split()
+		diceList = 'csalpjtozxwy'
+		reducer = DiceReducer(diceList)
+		self.assertEqual(
+			'jota placa'.split(),
+			list(sorted(reducer.reduceWordList(wordlist))))
+
 	def test_findLetter_withOneOccurrence(self):
 		game = Game('AEAA''AAAA''AAAA''AAAA')
 		self.assertEqual(game.findLetter('e'), [1])
@@ -284,16 +314,26 @@ class Game() :
 	def __init__(self, dices, equivalences={}):
 		self.dices = dices.lower()
 		self.equivalents = equivalences
-		self.reducer = DiceReducer(dices, equivalences)
+		self.reducer = DiceReducer(dices.lower(), equivalences)
+
+	def solve(self, wordlist):
+		return [
+			word for word in (
+				w for w in wordlist if self.reducer.matches(w) )
+			if self.hasWord(word)
+			]
 
 	def hasWord(self, word):
 		if not self.reducer.matches(word): return False
 		return self.wordTrail(word) is not None
 
+	def hasWord(self, word):
+		return self.wordTrail(word) is not None
+
 	def wordTrail(self, word):
-		word = ''.join(unaccent(c) for ce in word.lower)
-		for begin in findLetter(word[0]) :
-			trail = findNextTrail([begin],word[1:])
+		word = ''.join(self.unaccent(c) for c in word.lower())
+		for begin in self.findLetter(word[0]) :
+			trail = self.findNextTrail([begin],word[1:])
 			if trail: return trail
 		return None
 
@@ -346,7 +386,7 @@ class DiceReducer() :
 			for letter, equivalences in equivalences.items()
 			if letter in diceletters])
 		import re
-		self.rege = re.compile('['+''.join(set(diceletters))+']*')
+		self.rege = re.compile('['+''.join(set(diceletters))+']{3,}')
 
 	def matches(self, word):
 		return self.rege.fullmatch(word) is not None
@@ -385,33 +425,22 @@ def goodPath(path) :
 	return True
 
 
+import time
+class benchmark(object):
+    def __init__(self,name):
+        self.name = name
+    def __enter__(self):
+        self.start = time.time()
+    def __exit__(self,ty,val,tb):
+        end = time.time()
+        print("%s : %0.3f seconds" % (self.name, end-self.start))
+        return False
+
 if __name__ == '__main__':
 	import sys
 	if '--test' in sys.argv:
 		sys.argv.remove('--test')
 		unittest.main()
-
-	spanishDiceSet="""
-	HERINS
-	DAMEPC
-	ESFIHE
-	UOETNK
-
-	ZVNDAE
-	VITEGN
-	TAOAEI
-	RCALES
-
-	SIRMOA
-	GENLUY
-	JAMQOB
-	WILRUE
-
-	SEONTD
-	XORFIA
-	BATRIL
-	LUSPET
-	""".strip().split()
 
 	print('Rolling dices...')
 	roller = DiceRoller(spanishDiceSet)
@@ -420,59 +449,23 @@ if __name__ == '__main__':
 	print(Game(game).prettyPrint())
 	print('Prefiltering words...')
 	reducer = DiceReducer(game.lower())
-	words = set(
-		word for word in (
-			w.strip() for w in open('wordlist.es.dict'))
-		if reducer.matches(word))
+
+	with benchmark("two steps and a half"):
+		words = [
+			word for word in (
+				w.strip() for w in open('wordlist.es.dict'))
+		if reducer.matches(word)]
+
+		print(len(Game(game).solve(words)))
+
+	with benchmark("single step"):
+		originalWordlist = [w.strip() for w in open('wordlist.es.dict')]
+		availableWords = [w for w in Game(game).solve(originalWordlist)]
+		print(len(availableWords))
+
+	print("Original word list length: {}".format(len(originalWordlist)))
 	print('Reduced to {} words.'.format(len(words)))
-	print('Testing for a word...')
-	for word in [
-		'case',
-		'date',
-		'sar',
-		'ret',
-		'rets',
-		'ree',
-		'rees',
-		]:
-		print(word, (word in words))
 
-	def occurrences(item, alist) :
-		i = 0
-		while True:
-			try:
-				i = alist.index(item,i)
-			except ValueError:
-				raise StopIteration
-			yield i
-			i+=1
-				
-
-	print([i for i in occurrences('E',game)])
-
-	def findTrail(dices, trail, remaining) :
-		if not remaining: return trail
-		previous = trail[-1]
-		for i in -3,-4,-5,-1,+1,+3,+4,+5 :
-			step = previous+i
-			if step<0: continue
-			if step>=16: continue
-			if step in trail: continue
-			if not contiguous(previous, step): continue
-			if remaining[0]!=dices[step]: continue
-			found = findTrail(dices, trail+[step],remaining[1:])
-			if found: return found
-
-	def wordInGame(game, word) :
-		for i in occurrences(word[0],game.lower()) :
-			trail = findTrail(game.lower(), [i],word[1:])
-			if trail: return trail
-
-	availableWords = [
-		word for word in (words)
-		if len(word)>2
-		and wordInGame(game, word)
-		]
 	print(availableWords)
 	print(len(availableWords))
 
