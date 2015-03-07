@@ -253,11 +253,11 @@ class Game() :
 
 	def findNextTrail(self, trail, remaining):
 		previous = trail[-1]
-		for step in -5,-4,-3,-1,+1,+3,+4,5:
+		for step in -5,-4,-3,-1,+1,+3,+4,+5:
 			dice = previous+step
-			if self.dices[dice] == remaining[0]:
-				if dice in trail: continue
-				return trail+[dice]
+			if self.dices[dice] != remaining[0]: continue
+			if dice in trail: continue
+			return trail+[dice]
 		return None
 
 	def findLetter(self,letter):
