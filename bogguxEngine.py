@@ -213,10 +213,9 @@ class Game() :
 
 	def findNextTrail(self, trail, remaining):
 		previous = trail[-1]
-		if self.dices[previous+1] == remaining[0]:
-			return trail+[previous+1]
-		if self.dices[previous-3] == remaining[0]:
-			return trail+[previous-3]
+		for step in +1,-3:
+			if self.dices[previous+step] == remaining[0]:
+				return trail+[previous+step]
 		return None
 
 	def findLetter(self,letter):
