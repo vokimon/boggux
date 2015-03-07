@@ -186,10 +186,14 @@ class Boggux_Test(unittest.TestCase) :
 		game = Game('AAAA''AAAA''AAAA''AAAA', equivalences={'e':'é'})
 		self.assertEqual(game.unaccent('é'),'e')
 
-	@unittest.skip("target test")
 	def test_findLetter_withAccent_singleEquivalent(self):
 		game = Game('AEAA''AAAA''AAAA''AAAE', equivalences={'e':'é'})
 		self.assertEqual(game.findLetter('é'), [1,15])
+
+	def test_findNextTrail_whenNoNext(self) :
+		game = Game('AAAA''AAAA''AAAA''AAAA')
+		self.assertEqual(None,
+			game.findNextTrail([1,2],'o'))
 
 
 class Game() :
@@ -197,7 +201,11 @@ class Game() :
 		self.dices = dices.lower()
 		self.equivalents = equivalences
 
+	def findNextTrail(self, trail, remaining):
+		return None
+
 	def findLetter(self,letter):
+		letter = self.unaccent(letter)
 		return [i for i,c in enumerate(self.dices) if c==letter]
 
 	def prettyPrint(self):
@@ -212,6 +220,7 @@ class Game() :
 			if letter in accented:
 				return unaccent
 		return letter
+
 
 class DiceReducer() :
 	"""
