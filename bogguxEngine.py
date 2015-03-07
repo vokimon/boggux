@@ -245,6 +245,10 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertEqual(None,
 			game.findNextTrail([5,6],'o'))
 
+	def test_findNextTrail_dontSearchTooNorth(self):
+		game = Game('AAAA''AAAA''AAAA''OOOO')
+		self.assertEqual(None,
+			game.findNextTrail([1],'o'))
 
 class Game() :
 	def __init__(self, dices, equivalences={}):
@@ -255,6 +259,7 @@ class Game() :
 		previous = trail[-1]
 		for step in -5,-4,-3,-1,+1,+3,+4,+5:
 			dice = previous+step
+			if dice<0: continue
 			if self.dices[dice] != remaining[0]: continue
 			if dice in trail: continue
 			return trail+[dice]
