@@ -109,14 +109,6 @@ class Boggux_Test(unittest.TestCase) :
 			'....'
 			, ''.join([ 'X' if contiguous(7,i) else '.' for i in range(16) ]))
 
-	def test_formatDiceBoard(self) :
-		self.assertMultiLineEqual(
-			'ABCD\n'
-			'EFGH\n'
-			'IJKL\n'
-			'MNOP',
-			formatDiceBoard('ABCDEFGHIJKLMNOP'))
-
 	def test_prettyPrint(self) :
 		g = Game('ABCD''EFGH''IJKL''MNOP')
 		self.assertMultiLineEqual(
@@ -195,7 +187,11 @@ class Game() :
 		return [i for i,c in enumerate(self.dices) if c==letter]
 
 	def prettyPrint(self):
-		return formatDiceBoard(self.dices.upper())
+		letters=self.dices.upper()
+		return '\n'.join(
+			letters[n:n+4]
+			for n in range(0,16,4)
+			)
 
 
 class DiceReducer() :
@@ -251,11 +247,6 @@ def goodPath(path) :
 		return False
 	return True
 
-def formatDiceBoard(letters) :
-	return '\n'.join(
-		letters[n:n+4]
-		for n in range(0,16,4)
-		)
 
 if __name__ == '__main__':
 	import sys
@@ -289,7 +280,7 @@ if __name__ == '__main__':
 	roller = DiceRoller(spanishDiceSet)
 	game = roller.roll()
 	game = "BGJZIATEEONUSNSR"
-	print(formatDiceBoard(game))
+	print(Game(game).prettyPrint())
 	print('Prefiltering words...')
 	reducer = DiceReducer(game.lower())
 	words = set(
