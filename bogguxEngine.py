@@ -193,7 +193,17 @@ class Boggux_Test(unittest.TestCase) :
 	def test_findNextTrail_whenNoNext(self) :
 		game = Game('AAAA''AAAA''AAAA''AAAA')
 		self.assertEqual(None,
-			game.findNextTrail([1,2],'o'))
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_whenNoNext(self) :
+		game = Game('AAAA''AAAO''AAAA''AAAA')
+		self.assertEqual([5,6,7],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_whenNoNext(self) :
+		game = Game('AAAO''AAAA''AAAA''AAAA')
+		self.assertEqual([5,6,3],
+			game.findNextTrail([5,6],'o'))
 
 
 class Game() :
@@ -202,6 +212,11 @@ class Game() :
 		self.equivalents = equivalences
 
 	def findNextTrail(self, trail, remaining):
+		previous = trail[-1]
+		if self.dices[previous+1] == remaining[0]:
+			return trail+[previous+1]
+		if self.dices[previous-3] == remaining[0]:
+			return trail+[previous-3]
 		return None
 
 	def findLetter(self,letter):
