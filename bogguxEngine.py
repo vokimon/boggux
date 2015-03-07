@@ -305,10 +305,10 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertEqual([5,6,2,3],
 			game.findNextTrail([5,6],'oi'))
 
-	def test_findNextTrail_moreLettersRequiredAndFound(self) :
-		game = Game('AAOI''AAAA''AAAA''AAAA')
-		self.assertEqual([5,6,2,3],
-			game.findNextTrail([5,6],'oi'))
+	def test_findNextTrail_tryAllPathsUntilFound(self) :
+		game = Game('AAOI''AAAA''AAOI''AAAE')
+		self.assertEqual([5,6,10,11,15],
+			game.findNextTrail([5,6],'oie'))
 
 class Game() :
 	def __init__(self, dices, equivalences={}):
@@ -325,9 +325,6 @@ class Game() :
 
 	def hasWord(self, word):
 		if not self.reducer.matches(word): return False
-		return self.wordTrail(word) is not None
-
-	def hasWord(self, word):
 		return self.wordTrail(word) is not None
 
 	def wordTrail(self, word):
@@ -350,7 +347,8 @@ class Game() :
 			if previousRow is 0 and diceRow is 3: continue # Too West
 			if self.dices[dice] != remaining[0]: continue # Not matching
 			if dice in trail: continue # Already in trail
-			return self.findNextTrail(trail+[dice], remaining[1:])
+			found = self.findNextTrail(trail+[dice], remaining[1:])
+			if found: return found
 		return None
 
 	def findLetter(self,letter):
