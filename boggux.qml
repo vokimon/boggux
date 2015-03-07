@@ -8,6 +8,18 @@ import QtQuick.Dialogs 1.2
 Window {
 	id: main
 	property var words : []
+	property string dices : 'XXXXXXXXXXXXXXXX'
+
+	function setGame(game)
+	{
+		dices=game
+		words=[]
+		lastWordMessage.reset()
+	}
+	function badWord(word, message)
+	{
+		lastWordMessage.error(word,message)
+	}
 
 	function totalPoints()
 	{
@@ -18,24 +30,8 @@ Window {
 		var points = word.length - 2
 		return (points < 0) ? 0 : points
 	}
-	function shuffle() {
-		var o = diceBoard.game.split('')
-		for ( var i = o.length; i;) {
-			var j = Math.floor(Math.random() * i);
-			var x = o[--i];
-			o[i] = o[j];
-			o[j] = x;
-		}
-		diceBoard.game = o.join('')
-		words = []
-	}
 	function wordCompleted(word)
 	{
-		var message = validateWord(word)
-		if (message) {
-			lastWordMessage.error(word,message)
-			return
-		}
 		words.splice(0,0,word)
 		var points = wordPoints(word)
 		lastWordMessage.success(word,(
@@ -44,7 +40,6 @@ Window {
 			qsTr("¡%1 puntos!")
 				).arg(wordPoints(word)))
 		words=main.words
-		console.log("Word completed", word)
 	}
 	function validateWord(word)
 	{
@@ -63,7 +58,7 @@ Window {
 	Action {
 		id: shuffleAction
 		text: qsTr("Remena")
-		onTriggered: { shuffle() }
+		onTriggered: { gameEngine.shuffle() }
 	}
 
 	GridLayout {
@@ -114,9 +109,10 @@ Window {
 			Layout.alignment: Layout.Top | Layout.Center
 			DiceBoard {
 				id: diceBoard
+				game: main.dices
 				anchors.fill: parent
 				onWordCompleted: {
-					main.wordCompleted(word)
+					gameEngine.wordCompleted(word)
 				}
 			}
 		}
@@ -131,6 +127,8 @@ Window {
 			font.bold: true
 			function reset()
 			{
+				text='Click, drag and click to end the word'
+				color='#5a5'
 			}
 			function set(color, word, message)
 			{
@@ -143,7 +141,7 @@ Window {
 			}
 			function success(word, message)
 			{
-				set('#dfe', word, message)
+				set('#5e5', word, message)
 			}
 		}
 		Label {
@@ -154,7 +152,7 @@ Window {
 			color: 'white'
 			font.bold: true
 			smooth: true
-			text: (qsTr("%1 Puntos :: %2 Palabras")
+			text: (qsTr("Puntos: %1   Palabras: %2")
 				.arg(main.totalPoints())
 				.arg(main.words.length)
 				)
