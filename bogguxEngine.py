@@ -36,10 +36,6 @@ class DiceRoller() :
 		random.shuffle(randomFaces)
 		return ''.join(randomFaces)
 
-class Game():
-	def __init__(self, diceFaces, dictionary) :
-		pass
-
 class Boggux_Test(unittest.TestCase) :
 	allDifferentDiceSet = [
 		'abcçde',
@@ -190,6 +186,17 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertEqual(
 			'casà jota latá placa'.split(),
 			list(sorted(reducer.reduceWordList(wordlist))))
+
+	def test_findLetter_withOneOccurrence(self):
+		game = Game('AEAA''AAAA''AAAA''AAAA')
+		self.assertEqual(game.findLetter('e'), [1])
+
+class Game() :
+	def __init__(self, dices, equivalences={}):
+		self.dices = dices.lower()
+
+	def findLetter(self,letter):
+		return [self.dices.index(letter)]
 
 
 class DiceReducer() :
