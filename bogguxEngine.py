@@ -260,22 +260,57 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertEqual(None,
 			game.findNextTrail([4],'o'))
 
+	def test_findNextTrail_noRemaining(self) :
+		game = Game('AAAA''AAAA''AAAA''AAAA')
+		self.assertEqual([5,6],
+			game.findNextTrail([5,6],''))
+
+	def test_findNextTrail_moreLettersRequired(self) :
+		game = Game('AAOA''AAAA''AAAA''AAAA')
+		self.assertEqual(None,
+			game.findNextTrail([5,6],'oi'))
+
+	def test_findNextTrail_moreLettersRequiredAndFound(self) :
+		game = Game('AAOI''AAAA''AAAA''AAAA')
+		self.assertEqual([5,6,2,3],
+			game.findNextTrail([5,6],'oi'))
+
+	def test_findNextTrail_moreLettersRequiredAndFound(self) :
+		game = Game('AAOI''AAAA''AAAA''AAAA')
+		self.assertEqual([5,6,2,3],
+			game.findNextTrail([5,6],'oi'))
+
 class Game() :
 	def __init__(self, dices, equivalences={}):
 		self.dices = dices.lower()
 		self.equivalents = equivalences
+		self.reducer = DiceReducer(dices, equivalences)
+
+	def hasWord(self, word):
+		if not self.reducer.matches(word): return False
+		return self.wordTrail(word) is not None
+
+	def wordTrail(self, word):
+		word = ''.join(unaccent(c) for ce in word.lower)
+		for begin in findLetter(word[0]) :
+			trail = findNextTrail([begin],word[1:])
+			if trail: return trail
+		return None
 
 	def findNextTrail(self, trail, remaining):
+		if not remaining: return trail
 		previous = trail[-1]
 		for step in -5,-4,-3,-1,+1,+3,+4,+5:
 			dice = previous+step
 			if dice<0: continue # Too North
 			if dice>15: continue # Too South
-			if previous%4 is 3 and dice%4 is 0: continue # Too East
-			if previous%4 is 0 and dice%4 is 3: continue # Too West
+			previousRow = previous % 4
+			diceRow = dice % 4
+			if previousRow is 3 and diceRow is 0: continue # Too East
+			if previousRow is 0 and diceRow is 3: continue # Too West
 			if self.dices[dice] != remaining[0]: continue # Not matching
 			if dice in trail: continue # Already in trail
-			return trail+[dice]
+			return self.findNextTrail(trail+[dice], remaining[1:])
 		return None
 
 	def findLetter(self,letter):
