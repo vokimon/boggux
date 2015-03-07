@@ -191,12 +191,16 @@ class Boggux_Test(unittest.TestCase) :
 		game = Game('AEAA''AAAA''AAAA''AAAA')
 		self.assertEqual(game.findLetter('e'), [1])
 
+	def test_findLetter_withNoOccurrences(self):
+		game = Game('AAAA''AAAA''AAAA''AAAA')
+		self.assertEqual(game.findLetter('e'), [])
+
 class Game() :
 	def __init__(self, dices, equivalences={}):
 		self.dices = dices.lower()
 
 	def findLetter(self,letter):
-		return [self.dices.index(letter)]
+		return [self.dices.index(letter)] if letter in self.dices else []
 
 
 class DiceReducer() :
