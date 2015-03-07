@@ -4,28 +4,6 @@ import unittest
 
 import random
 
-spanishDiceSet="""
-HERINS
-DAMEPC
-ESFIHE
-UOETNK
-
-ZVNDAE
-VITEGN
-TAOAEI
-RCALES
-
-SIRMOA
-GENLUY
-JAMQOB
-WILRUE
-
-SEONTD
-XORFIA
-BATRIL
-LUSPET
-""".strip().split()
-
 
 class DiceRoller() :
 	def __init__(self, diceSet) :
@@ -139,6 +117,15 @@ class Boggux_Test(unittest.TestCase) :
 			'MNOP',
 			formatDiceBoard('ABCDEFGHIJKLMNOP'))
 
+	def test_prettyPrint(self) :
+		g = Game('ABCD''EFGH''IJKL''MNOP')
+		self.assertMultiLineEqual(
+			'ABCD\n'
+			'EFGH\n'
+			'IJKL\n'
+			'MNOP',
+			g.prettyPrint())
+
 	def test_goodPath_whenNotContinuous(self) :
 		self.assertFalse(goodPath([1,2,4]))
 
@@ -199,12 +186,16 @@ class Boggux_Test(unittest.TestCase) :
 		game = Game('AEAA''AAAA''AAAA''AAAE')
 		self.assertEqual(game.findLetter('e'), [1,15])
 
+
 class Game() :
 	def __init__(self, dices, equivalences={}):
 		self.dices = dices.lower()
 
 	def findLetter(self,letter):
 		return [i for i,c in enumerate(self.dices) if c==letter]
+
+	def prettyPrint(self):
+		return formatDiceBoard(self.dices.upper())
 
 
 class DiceReducer() :
@@ -271,6 +262,28 @@ if __name__ == '__main__':
 	if '--test' in sys.argv:
 		sys.argv.remove('--test')
 		unittest.main()
+
+	spanishDiceSet="""
+	HERINS
+	DAMEPC
+	ESFIHE
+	UOETNK
+
+	ZVNDAE
+	VITEGN
+	TAOAEI
+	RCALES
+
+	SIRMOA
+	GENLUY
+	JAMQOB
+	WILRUE
+
+	SEONTD
+	XORFIA
+	BATRIL
+	LUSPET
+	""".strip().split()
 
 	print('Rolling dices...')
 	roller = DiceRoller(spanishDiceSet)
