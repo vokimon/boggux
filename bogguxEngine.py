@@ -200,9 +200,49 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertEqual([5,6,7],
 			game.findNextTrail([5,6],'o'))
 
-	def test_findNextTrail_whenNoNext(self) :
+	def test_findNextTrail_E(self) :
+		game = Game('AAAA''AAAO''AAAA''AAAA')
+		self.assertEqual([5,6,7],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_NE(self) :
 		game = Game('AAAO''AAAA''AAAA''AAAA')
 		self.assertEqual([5,6,3],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_N(self) :
+		game = Game('AAOA''AAAA''AAAA''AAAA')
+		self.assertEqual([5,6,2],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_NW(self) :
+		game = Game('AOAA''AAAA''AAAA''AAAA')
+		self.assertEqual([5,6,1],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_SW(self) :
+		game = Game('AAAA''AAAA''AOAA''AAAA')
+		self.assertEqual([5,6,9],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_S(self) :
+		game = Game('AAAA''AAAA''AAOA''AAAA')
+		self.assertEqual([5,6,10],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_SE(self) :
+		game = Game('AAAA''AAAA''AAAO''AAAA')
+		self.assertEqual([5,6,11],
+			game.findNextTrail([5,6],'o'))
+
+	def test_findNextTrail_W(self):
+		game = Game('AAAA''AOAA''AAAA''AAAA')
+		self.assertEqual([2,6,5],
+			game.findNextTrail([2,6],'o'))
+
+	def test_findNextTrail_backOnTrail(self):
+		game = Game('AAAA''AOAA''AAAA''AAAA')
+		self.assertEqual(None,
 			game.findNextTrail([5,6],'o'))
 
 
@@ -213,8 +253,9 @@ class Game() :
 
 	def findNextTrail(self, trail, remaining):
 		previous = trail[-1]
-		for step in +1,-3:
+		for step in -5,-4,-3,-1,+1,+3,+4,5:
 			if self.dices[previous+step] == remaining[0]:
+				if previous+step in trail: continue
 				return trail+[previous+step]
 		return None
 
