@@ -23,7 +23,6 @@ Item {
 	function endWord()
 	{
 		var intendedWord = path.map(function(index) { return game[index] }).join('')
-		console.debug(path, intendedWord)
 		this.wordCompleted(intendedWord)
 	}
 
@@ -104,13 +103,11 @@ Item {
 							cursorShape: Qt.PointingHandCursor
 							onPressed: {
 								if (diceBox.tracking) {
-									console.debug("Desactivando tracking child")
 									diceBox.endWord()
 									diceBox.tracking = false
 									diceBox.path=[]
 								}
 								else {
-									console.debug("Activando tracking child")
 									diceBox.tracking = true
 									diceBox.path=[]
 									diceBox.addPath(dice)

@@ -21,6 +21,7 @@ class Controller(QtCore.QObject) :
 		self.game = Game(dices)
 		self.window.setGame(dices)
 		self.validWords = self.game.solve(self.wordlist)
+		print(dices)
 		print(self.validWords)
 
 	@QtCore.pyqtSlot(str)
@@ -38,7 +39,6 @@ class Controller(QtCore.QObject) :
 		return points if points>0 else 0
 
 	def validateWord(self,word):
-		print("validating",word)
 		if len(word)<3:
 			return self.tr("Corta")
 		if word in self.window.property('words'):
