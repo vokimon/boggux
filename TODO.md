@@ -1,4 +1,4 @@
-- Match words with accents, ç and ñ
+- ~~Match words with accents, ç and ñ~~
 - Fancy buttons
 - Interface to change the language
 - Dice Sets

@@ -27,6 +27,13 @@ spanishDiceSet="""
 	""".strip().split()
 
 
+class Multimap(dict):
+	def __setitem__(self, key, value):
+		if key not in self:
+			dict.__setitem__(self, key, [value])
+		else:
+			self[key].append(value)
+
 class DiceRoller() :
 	def __init__(self, diceSet) :
 		self.diceSet = diceSet
@@ -64,6 +71,16 @@ class Boggux_Test(unittest.TestCase) :
 		'JKLM'
 		'NOPQ'
 		)
+	equivalents={
+		'a':'aàáäâ',
+		'e':'eèéëê',
+		'i':'iìíïî',
+		'o':'oòóöô',
+		'u':'uùúüû',
+		'c':'cç',
+		'n':'nñ',
+		'l':'lŀ',
+		}
 	def setUp(self) :
 		self.gameSetup = None
 
@@ -147,6 +164,12 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertFalse(goodPath([1,2,1]))
 
 	def test_wordPath(self) :
+		g = Game('ABCD''EFGH''IJKL''MNOP')
+		self.assertEqual(
+			g.wordPath([1,2,3,6]),
+			"bcdg")
+
+	def test_wordPath_old(self) :
 		self.assertEqual(
 			wordPath(self.game, [1,2,3,6]),
 			"BCDH")
@@ -215,10 +238,6 @@ class Boggux_Test(unittest.TestCase) :
 	def test_unaccent_withEquivalent(self):
 		game = Game('AAAA''AAAA''AAAA''AAAA', equivalences={'e':'é'})
 		self.assertEqual(game.unaccent('é'),'e')
-
-	def test_findLetter_withAccent_singleEquivalent(self):
-		game = Game('AEAA''AAAA''AAAA''AAAE', equivalences={'e':'é'})
-		self.assertEqual(game.findLetter('é'), [1,15])
 
 	def test_findNextTrail_whenNoNext(self) :
 		game = Game('AAAA''AAAA''AAAA''AAAA')
@@ -310,18 +329,39 @@ class Boggux_Test(unittest.TestCase) :
 		self.assertEqual([5,6,10,11,15],
 			game.findNextTrail([5,6],'oie'))
 
+	def test_wordTrail(self):
+		game = Game('AAOI''AUZA''AAOI''AAAE')
+		self.assertEqual([5,6,10,11,15],
+			game.wordTrail('uzoie'))
+
+	def test_wordTrail_accents(self):
+		game = Game('AAOI''AUZA''AAOI''AAAE',
+			equivalences=self.equivalents)
+		self.assertEqual([5,6,10,11,15],
+			game.wordTrail('úzòie'))
+
+
 class Game() :
+
 	def __init__(self, dices, equivalences={}):
 		self.dices = dices.lower()
 		self.equivalents = equivalences
 		self.reducer = DiceReducer(dices.lower(), equivalences)
 
 	def solve(self, wordlist):
+		return Multimap(
+			(self.wordPath(trail), word)
+			for trail, word in (
+				(self.wordTrail(w),w)
+				for w in wordlist
+				if self.reducer.matches(w) )
+			if trail
+			)
+		
 		return [
-			word for word in (
-				w for w in wordlist if self.reducer.matches(w) )
-			if self.hasWord(word)
-			]
+			trail for trail in (
+				(w,self.wordTrail(w)) for w in wordlist if self.reducer.matches(w)
+		) if trail ]
 
 	def hasWord(self, word):
 		if not self.reducer.matches(word): return False
@@ -345,14 +385,14 @@ class Game() :
 			diceRow = dice % 4
 			if previousRow is 3 and diceRow is 0: continue # Too East
 			if previousRow is 0 and diceRow is 3: continue # Too West
-			if self.dices[dice] != remaining[0]: continue # Not matching
+			diceLetter = self.dices[dice].lower()
+			if remaining[0] != diceLetter: continue # Not matching
 			if dice in trail: continue # Already in trail
 			found = self.findNextTrail(trail+[dice], remaining[1:])
 			if found: return found
 		return None
 
 	def findLetter(self,letter):
-		letter = self.unaccent(letter)
 		return [i for i,c in enumerate(self.dices) if c==letter]
 
 	def prettyPrint(self):
@@ -367,6 +407,9 @@ class Game() :
 			if letter in accented:
 				return unaccent
 		return letter
+
+	def wordPath(self, path) :
+		return ''.join(( self.dices[i] for i in path))
 
 
 class DiceReducer() :

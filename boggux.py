@@ -13,15 +13,25 @@ class Controller(QtCore.QObject) :
 			word for word in (
 				w.strip() for w in open('wordlist.{}.dict'.format(language))
 			) if word ]
+		self.equivalents={
+			'a':'aàáäâ',
+			'e':'eèéëê',
+			'i':'iìíïî',
+			'o':'oòóöô',
+			'u':'uùúüû',
+			'c':'cç',
+			'n':'nñ',
+			'l':'lŀ',
+		}
 		self.shuffle()
 
 	@QtCore.pyqtSlot()
 	def shuffle(self):
 		dices = self.roller.roll()
-		self.game = Game(dices)
+		self.game = Game(dices, equivalences=self.equivalents)
 		self.window.setGame(dices)
 		self.validWords = self.game.solve(self.wordlist)
-		print(dices)
+		print(self.game.prettyPrint())
 		print(self.validWords)
 
 	@QtCore.pyqtSlot(str)
