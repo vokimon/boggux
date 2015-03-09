@@ -349,19 +349,17 @@ class Game() :
 		self.reducer = DiceReducer(dices.lower(), equivalences)
 
 	def solve(self, wordlist):
-		return Multimap(
+		words=dict()
+		for diceWord, word in (
 			(self.wordPath(trail), word)
 			for trail, word in (
 				(self.wordTrail(w),w)
 				for w in wordlist
 				if self.reducer.matches(w) )
 			if trail
-			)
-		
-		return [
-			trail for trail in (
-				(w,self.wordTrail(w)) for w in wordlist if self.reducer.matches(w)
-		) if trail ]
+			):
+			words.setdefault(diceWord,set()).add(word)
+		return words
 
 	def hasWord(self, word):
 		if not self.reducer.matches(word): return False
